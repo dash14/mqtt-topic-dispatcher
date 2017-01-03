@@ -1,6 +1,5 @@
 package org.dash14.mqtt.topic;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
@@ -138,15 +137,14 @@ public class TopicHandleManager<Data> {
                 break outside; // switchの外側のループを抜ける
             case "+": // 以降はパターンマッチ
                 StringJoiner joiner = new StringJoiner("/", (i > 0) ? "^/" : "^", "$");
-                Arrays.stream(parts, i, parts.length)
-                      .map(s -> {
-                          switch (s) {
-                          case "#": return ".*";
-                          case "+": return "[^/]*";
-                          case "" : return "";
-                          default : return Pattern.quote(s);
-                          }
-                      }).forEach(joiner::add);
+                for (int j = i; j < parts.length; j++) {
+                    switch (parts[j]) {
+                    case "#": joiner.add(".*"); break;
+                    case "+": joiner.add("[^/]*"); break;
+                    case "" : joiner.add(""); break;
+                    default : joiner.add(Pattern.quote(parts[j])); break;
+                    }
+                }
                 Pattern pattern = Pattern.compile(joiner.toString());
                 currentMatcher.appendHandler(newTopicPatternMatchHandler(pattern, handler));
                 break outside;
