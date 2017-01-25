@@ -19,7 +19,7 @@ import org.dash14.mqtt.topic.handler.TopicPrefixMatchHandler;
 /**
  * A manager for message handling for MQTT-subscribe topic filter.
  */
-public class TopicHandleManager<Data> {
+public class TopicDispatcher<Data> {
 
     /** Handlers for exact match */
     private ListMultimap<String, TopicHandler<Data>> _exactMatchHanders;
@@ -31,7 +31,7 @@ public class TopicHandleManager<Data> {
     private static final Pattern INVALID_TOPIC_PATTERN = Pattern.compile("(#.+|[^/]\\+|\\+[^/])");
 
     /** Constructor */
-    public TopicHandleManager() {
+    public TopicDispatcher() {
         _exactMatchHanders = ArrayListMultimap.create(16, 2);
         _hierarchicallyMatcher = new HierarchicallyTopicMatcher<>();
     }
@@ -39,9 +39,9 @@ public class TopicHandleManager<Data> {
     /**
      * Add topic-filter and handler pair.
      * @param topicFilter A topic-filter; It can be used wildcards ('+', '#')
-     * @param handler A handler for {@link #handleTopic(String, Data)} called with specified topic-filter
+     * @param handler A handler for {@link #dispatch(String, Data)} called with specified topic-filter
      */
-    public synchronized void addTopicHandler(@Nonnull String topicFilter, @Nonnull TopicHandler<Data> handler) {
+    public synchronized void addHandler(@Nonnull String topicFilter, @Nonnull TopicHandler<Data> handler) {
         topicFilter = Objects.requireNonNull(topicFilter);
         handler = Objects.requireNonNull(handler);
 
@@ -62,7 +62,7 @@ public class TopicHandleManager<Data> {
      * @param handler A registered handler
      * @return {@code true} if removed, {@code false} otherwise
      */
-    public synchronized boolean removeTopicHandler(@Nonnull String topicFilter, @Nonnull TopicHandler<Data> handler) {
+    public synchronized boolean removeHandler(@Nonnull String topicFilter, @Nonnull TopicHandler<Data> handler) {
         topicFilter = Objects.requireNonNull(topicFilter);
         handler = Objects.requireNonNull(handler);
 
@@ -90,7 +90,7 @@ public class TopicHandleManager<Data> {
      * @param data A message data passing to handlers
      * @return {@code true} if called least one handler, {@code false} if not called handlers
      */
-    public synchronized boolean handleTopic(@Nullable String topic, @Nullable Data data) {
+    public synchronized boolean dispatch(@Nullable String topic, @Nullable Data data) {
         if (Strings.isNullOrEmpty(topic)) {
             return false;
         }

@@ -1,39 +1,39 @@
-# mqtt-topic-handler
+# mqtt-topic-dispatcher
 
-Implementation for message handling (callback) for MQTT-subscribe topic-filter.
+A implementation for dispatching message with topic-filter for a MQTT subscriber.
 
 ## Usage
 
-A example for registering handlers, with topic-filters.
+Examples for registering handlers with topic-filters.
 
 ```java
-// Instantiate TopicHandleManager. <Type> is message type.
-TopicHandleManager<MqttMessage> topicManager = new TopicHandleManager<>();
+// Instantiate TopicDispatcher. <Type> is message type.
+TopicDispatcher<MqttMessage> topicDispatcher = new TopicDispatcher<>();
 
-topicManager.addTopicHandler("example/topic1", (topic, message) -> {
+topicDispatcher.addHandler("example/topic1", (topic, message) -> {
     // callback when received a MQTT message which topic is 'example/topic1'
     // ...
 });
 
-topicManager.addTopicHandler("example/test/#", (topic, message) -> {
+topicDispatcher.addHandler("example/test/#", (topic, message) -> {
     // callback when received a MQTT message which topic starts with 'example/test/'
     // ...
 });
 
-topicManager.addTopicHandler("example/+/name", (topic, message) -> {
+topicDispatcher.addHandler("example/+/name", (topic, message) -> {
     // callback when received a MQTT message which topic starts with 'example/' and ends with '/name'
     // ...
 });
 ```
 
-A example for message handling with paho-mqtt library.
+A example for message dispatching using paho-mqtt library.
 
 ```java
 // ...
 
 @Override
 public void messageArrived(String topic, MqttMessage message) throws Exception {
-    topicManager.handleTopic(topic, message); // Note: callback on same thread
+    topicDispatcher.dispatch(topic, message); // Note: callback on same thread
 }
 
 // ...
@@ -41,7 +41,7 @@ public void messageArrived(String topic, MqttMessage message) throws Exception {
 
 ## Contributing
 
-1. Fork it ( http://github.com/dash14/mqtt-topic-handler/fork )
+1. Fork it ( http://github.com/dash14/mqtt-topic-dispatcher/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

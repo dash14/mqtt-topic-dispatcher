@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dash14.mqtt.topic.TopicHandleManager;
+import org.dash14.mqtt.topic.TopicDispatcher;
 import org.dash14.mqtt.topic.TopicHandler;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ public class TopicHandleManagerTest {
     // Exact match (doesn't have wildcard)
     @Test
     public void testHandleTopicExactly() {
-        TopicHandleManager<String> manager = new TopicHandleManager<>();
+        TopicDispatcher<String> manager = new TopicDispatcher<>();
         final List<String> test = new ArrayList<>();
 
         // '/' only
@@ -28,7 +28,7 @@ public class TopicHandleManagerTest {
             assertEquals(test, Arrays.asList("A-1"));
         }
 
-        manager = new TopicHandleManager<>();
+        manager = new TopicDispatcher<>();
         test.clear();
 
         // starts with '/'
@@ -41,7 +41,7 @@ public class TopicHandleManagerTest {
             assertEquals(test, Arrays.asList("A-2"));
         }
 
-        manager = new TopicHandleManager<>();
+        manager = new TopicDispatcher<>();
         test.clear();
 
         // ends with '/'
@@ -54,7 +54,7 @@ public class TopicHandleManagerTest {
             assertEquals(test, Arrays.asList("A-3"));
         }
 
-        manager = new TopicHandleManager<>();
+        manager = new TopicDispatcher<>();
         test.clear();
 
         // a series of '/'
@@ -75,7 +75,7 @@ public class TopicHandleManagerTest {
             assertEquals(test, Arrays.asList("A-5", "B-4"));
         }
 
-        manager = new TopicHandleManager<>();
+        manager = new TopicDispatcher<>();
         test.clear();
 
         // exact match; 2 levels
@@ -126,7 +126,7 @@ public class TopicHandleManagerTest {
 
         // #subscribe() with empty topic
         try {
-            manager.addTopicHandler("", (topic, message) -> {});
+            manager.addHandler("", (topic, message) -> {});
             fail();
         } catch (IllegalArgumentException expected) {
             assertEquals(expected.getMessage(), "invalid topic format: (empty)");
@@ -136,7 +136,7 @@ public class TopicHandleManagerTest {
     // Pattern match (wildcard '#')
     @Test
     public void testHandleTopicSharpWilcard() {
-        TopicHandleManager<String> manager = new TopicHandleManager<>();
+        TopicDispatcher<String> manager = new TopicDispatcher<>();
         final List<String> test = new ArrayList<>();
 
         // '#' only
@@ -151,7 +151,7 @@ public class TopicHandleManagerTest {
             assertEquals(test, Arrays.asList("A", "B-s", "C-s", "D-s"));
         }
 
-        manager = new TopicHandleManager<>();
+        manager = new TopicDispatcher<>();
         test.clear();
 
         // /#
@@ -166,7 +166,7 @@ public class TopicHandleManagerTest {
             assertEquals(test, Arrays.asList("A", "B-as", "C-as"));
         }
 
-        manager = new TopicHandleManager<>();
+        manager = new TopicDispatcher<>();
         test.clear();
 
         // /abc/#
@@ -185,7 +185,7 @@ public class TopicHandleManagerTest {
 
         // abnormally: starts with '#'
         try {
-            manager.addTopicHandler("#/abc", (topic, message) -> {});
+            manager.addHandler("#/abc", (topic, message) -> {});
             fail();
         } catch (IllegalArgumentException expected) {
             assertEquals(expected.getMessage(), "invalid topic format: #/abc");
@@ -193,7 +193,7 @@ public class TopicHandleManagerTest {
 
         // abnormally: characters after '#'
         try {
-            manager.addTopicHandler("/abc/#/abc", (topic, message) -> {});
+            manager.addHandler("/abc/#/abc", (topic, message) -> {});
             fail();
         } catch (IllegalArgumentException expected) {
             assertEquals(expected.getMessage(), "invalid topic format: /abc/#/abc");
@@ -201,7 +201,7 @@ public class TopicHandleManagerTest {
 
         // abnormally: '##'
         try {
-            manager.addTopicHandler("/abc/##", (topic, message) -> {});
+            manager.addHandler("/abc/##", (topic, message) -> {});
             fail();
         } catch (IllegalArgumentException expected) {
             assertEquals(expected.getMessage(), "invalid topic format: /abc/##");
@@ -211,7 +211,7 @@ public class TopicHandleManagerTest {
     // Pattern match (wildcard '+')
     @Test
     public void testHandleTopicPlusWilcard() {
-        TopicHandleManager<String> manager = new TopicHandleManager<>();
+        TopicDispatcher<String> manager = new TopicDispatcher<>();
         final List<String> test = new ArrayList<>();
 
         // starts with '+'
@@ -225,7 +225,7 @@ public class TopicHandleManagerTest {
             assertEquals(test, Arrays.asList("A-p1"));
         }
 
-        manager = new TopicHandleManager<>();
+        manager = new TopicDispatcher<>();
         test.clear();
 
         // one '+'
@@ -239,7 +239,7 @@ public class TopicHandleManagerTest {
             assertEquals(test, Arrays.asList("B-p2", "C-p2"));
         }
 
-        manager = new TopicHandleManager<>();
+        manager = new TopicDispatcher<>();
         test.clear();
 
         // multiple '+'
@@ -254,7 +254,7 @@ public class TopicHandleManagerTest {
             assertEquals(test, Arrays.asList("A-p3"));
         }
 
-        manager = new TopicHandleManager<>();
+        manager = new TopicDispatcher<>();
         test.clear();
 
         // abc/+
@@ -269,7 +269,7 @@ public class TopicHandleManagerTest {
             assertEquals(test, Arrays.asList("B-p4", "C-p4"));
         }
 
-        manager = new TopicHandleManager<>();
+        manager = new TopicDispatcher<>();
         test.clear();
 
         // '+' only
@@ -284,12 +284,12 @@ public class TopicHandleManagerTest {
             assertEquals(test, Arrays.asList("D-p5"));
         }
 
-        manager = new TopicHandleManager<>();
+        manager = new TopicDispatcher<>();
         test.clear();
 
         // abnormally: '++'
         try {
-            manager.addTopicHandler("/abc/++/def", (topic, message) -> {});
+            manager.addHandler("/abc/++/def", (topic, message) -> {});
             fail();
         } catch (IllegalArgumentException expected) {
             assertEquals(expected.getMessage(), "invalid topic format: /abc/++/def");
@@ -297,7 +297,7 @@ public class TopicHandleManagerTest {
 
         // abnormally: /abc+
         try {
-            manager.addTopicHandler("/abc+", (topic, message) -> {});
+            manager.addHandler("/abc+", (topic, message) -> {});
             fail();
         } catch (IllegalArgumentException expected) {
             assertEquals(expected.getMessage(), "invalid topic format: /abc+");
@@ -306,7 +306,7 @@ public class TopicHandleManagerTest {
 
     @Test
     public void testRemoveTopicHandler() {
-        TopicHandleManager<String> manager = new TopicHandleManager<>();
+        TopicDispatcher<String> manager = new TopicDispatcher<>();
         final List<String> test = new ArrayList<>();
 
         TopicHandler<String> h1 = (topic, message) -> {
@@ -322,7 +322,7 @@ public class TopicHandleManagerTest {
             subscribe("/", manager, h1);
             assertPublished("/", "A", manager);
 
-            boolean result = manager.removeTopicHandler("/", h1);
+            boolean result = manager.removeHandler("/", h1);
             assertTrue(result);
 
             assertNotPublished("/", "B", manager);
@@ -335,7 +335,7 @@ public class TopicHandleManagerTest {
             subscribe("/abc/def", manager, h1);
             assertPublished("/abc/def", "A2", manager);
 
-            boolean result = manager.removeTopicHandler("/abc/def", h1);
+            boolean result = manager.removeHandler("/abc/def", h1);
             assertTrue(result);
 
             assertNotPublished("/abc/def", "B2", manager);
@@ -348,7 +348,7 @@ public class TopicHandleManagerTest {
             subscribe("#", manager, h1);
             assertPublished("#", "C", manager);
 
-            boolean result = manager.removeTopicHandler("#", h1);
+            boolean result = manager.removeHandler("#", h1);
             assertTrue(result);
 
             assertNotPublished("#", "D", manager);
@@ -361,7 +361,7 @@ public class TopicHandleManagerTest {
             subscribe("/#", manager, h1);
             assertPublished("/#", "E", manager);
 
-            boolean result = manager.removeTopicHandler("/#", h1);
+            boolean result = manager.removeHandler("/#", h1);
             assertTrue(result);
 
             assertNotPublished("/#", "F", manager);
@@ -374,7 +374,7 @@ public class TopicHandleManagerTest {
             subscribe("/abc/+/def", manager, h1);
             assertPublished("/abc/aaa/def", "F", manager);
 
-            boolean result = manager.removeTopicHandler("/abc/+/def", h1);
+            boolean result = manager.removeHandler("/abc/+/def", h1);
             assertTrue(result);
 
             assertNotPublished("/abc/aaa/def", "G", manager);
@@ -393,13 +393,13 @@ public class TopicHandleManagerTest {
             assertEquals(test, Arrays.asList("H-r1", "I-r1", "I-r2"));
             test.clear();
 
-            boolean result = manager.removeTopicHandler("/abc/+/def", h2);
+            boolean result = manager.removeHandler("/abc/+/def", h2);
             assertTrue(result);
 
             assertPublished("/abc/aaa/def", "J", manager);
             assertEquals(test, Arrays.asList("J-r1"));
 
-            result = manager.removeTopicHandler("/abc/#", h1);
+            result = manager.removeHandler("/abc/#", h1);
             assertTrue(result);
 
             assertNotPublished("/abc/aaa/def", "K", manager);
@@ -417,14 +417,14 @@ public class TopicHandleManagerTest {
             assertEquals(test, Arrays.asList("I-r1", "J-r2"));
             test.clear();
 
-            boolean result = manager.removeTopicHandler("/#", h1);
+            boolean result = manager.removeHandler("/#", h1);
             assertTrue(result);
 
             assertNotPublished("/abc/def", "I", manager);
             assertPublished("abc", "J", manager);
             assertEquals(test, Arrays.asList("J-r2"));
 
-            result = manager.removeTopicHandler("+", h2);
+            result = manager.removeHandler("+", h2);
             assertTrue(result);
 
             assertNotPublished("/abc/def", "I", manager);
@@ -437,7 +437,7 @@ public class TopicHandleManagerTest {
             assertPublished("/abc/def", "I", manager);
 
             // invalid topic-filter
-            boolean result = manager.removeTopicHandler("/test/#", h1);
+            boolean result = manager.removeHandler("/test/#", h1);
             assertFalse(result);
 
             TopicHandler<String> h3 = (topic, message) -> {
@@ -445,22 +445,22 @@ public class TopicHandleManagerTest {
             };
 
             // invalid handler
-            result = manager.removeTopicHandler("/#", h3);
+            result = manager.removeHandler("/#", h3);
             assertFalse(result);
         }
     }
 
-    private static void subscribe(String topic, TopicHandleManager<String> m, TopicHandler<String> h) {
-        m.addTopicHandler(topic, h);
+    private static void subscribe(String topic, TopicDispatcher<String> m, TopicHandler<String> h) {
+        m.addHandler(topic, h);
     }
 
-    private static void assertPublished(String topic, String message, TopicHandleManager<String> m) {
-        boolean result = m.handleTopic(topic, message);
+    private static void assertPublished(String topic, String message, TopicDispatcher<String> m) {
+        boolean result = m.dispatch(topic, message);
         assertTrue(result);
     }
 
-    private static void assertNotPublished(String topic, String message, TopicHandleManager<String> m) {
-        boolean result = m.handleTopic(topic, message);
+    private static void assertNotPublished(String topic, String message, TopicDispatcher<String> m) {
+        boolean result = m.dispatch(topic, message);
         assertFalse(result);
     }
 }

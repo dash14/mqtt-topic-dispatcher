@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.regex.Pattern;
 
-import org.dash14.mqtt.topic.TopicHandleManager;
+import org.dash14.mqtt.topic.TopicDispatcher;
 import org.dash14.mqtt.topic.TopicHandler;
 import org.dash14.mqtt.topic.handler.TopicMatchHandler;
 import org.junit.Test;
@@ -13,7 +13,7 @@ public class TopicMatchHandlerTest {
 
     @Test
     public void testThroughTopicMatchHandlerCompareTo() {
-        TopicHandleManager<String> manager = new TopicHandleManager<>();
+        TopicDispatcher<String> manager = new TopicDispatcher<>();
         TopicHandler<String> h1 = (topic, data) -> {};
         TopicHandler<String> h2 = (topic, data) -> {};
 
@@ -26,7 +26,7 @@ public class TopicMatchHandlerTest {
 
     @Test
     public void testTopicPrefixMatchHandlerCompareTo() {
-        TopicHandleManager<String> manager = new TopicHandleManager<>();
+        TopicDispatcher<String> manager = new TopicDispatcher<>();
         TopicHandler<String> h1 = (topic, data) -> {};
         TopicHandler<String> h2 = (topic, data) -> {};
 
@@ -42,7 +42,7 @@ public class TopicMatchHandlerTest {
 
     @Test
     public void testTopicPatternMatchHandlerCompareTo() {
-        TopicHandleManager<String> manager = new TopicHandleManager<>();
+        TopicDispatcher<String> manager = new TopicDispatcher<>();
         TopicHandler<String> h1 = (topic, data) -> {};
         TopicHandler<String> h2 = (topic, data) -> {};
 
@@ -58,7 +58,7 @@ public class TopicMatchHandlerTest {
 
     @Test
     public void testComplexHandlerCompareTo() {
-        TopicHandleManager<String> manager = new TopicHandleManager<>();
+        TopicDispatcher<String> manager = new TopicDispatcher<>();
         TopicHandler<String> h1 = (topic, data) -> {};
 
         TopicMatchHandler<String> mh1 = manager.newThroughTopicMatchHandler(h1);
