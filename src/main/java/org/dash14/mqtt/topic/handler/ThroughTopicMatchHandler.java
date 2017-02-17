@@ -17,8 +17,7 @@ public class ThroughTopicMatchHandler<Data> implements TopicMatchHandler<Data> {
     }
 
     @Override
-    public boolean matchAndHandle(String topic, String fullTopic, Data data) {
-        _handler.handleTopic(fullTopic, data);
+    public boolean match(String topic, String fullTopic) {
         return true;
     }
 

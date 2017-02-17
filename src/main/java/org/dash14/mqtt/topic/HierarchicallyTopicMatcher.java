@@ -2,6 +2,7 @@ package org.dash14.mqtt.topic;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,12 +28,15 @@ import org.dash14.mqtt.topic.handler.TopicMatchHandler;
     private Map<String, HierarchicallyTopicMatcher<Data>> _children = new HashMap<>();
 
     /* package */
-    boolean matchAndHandleHierarchically(String topic, String fullTopic, Data data) {
+    boolean matchHierarchically(String topic, String fullTopic, List<TopicHandler<Data>> matchedHandlers) {
         boolean matched = false;
 
         // Match current hierarchy
         for (TopicMatchHandler<Data> matcher : _matchers) {
-            matched |= matcher.matchAndHandle(topic, fullTopic, data);
+            if (matcher.match(topic, fullTopic)) {
+                matched = true;
+                matchedHandlers.add(matcher.getTopicHandler());
+            }
         }
 
         if ("".equals(topic)) {
@@ -58,7 +62,7 @@ import org.dash14.mqtt.topic.handler.TopicMatchHandler;
 
         HierarchicallyTopicMatcher<Data> m = _children.get(nextLevelTopic);
         if (m != null) {
-            matched |= m.matchAndHandleHierarchically(topic, fullTopic, data);
+            matched |= m.matchHierarchically(topic, fullTopic, matchedHandlers);
         }
         return matched;
     }

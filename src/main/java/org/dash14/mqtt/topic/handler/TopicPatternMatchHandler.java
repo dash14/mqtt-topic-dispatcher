@@ -20,12 +20,8 @@ public class TopicPatternMatchHandler<Data> implements TopicMatchHandler<Data> {
     }
 
     @Override
-    public boolean matchAndHandle(String topic, String fullTopic, Data data) {
-        if (_pattern.matcher(topic).find()) {
-            _handler.handleTopic(fullTopic, data);
-            return true;
-        }
-        return false;
+    public boolean match(String topic, String fullTopic) {
+        return _pattern.matcher(topic).find();
     }
 
     @Override

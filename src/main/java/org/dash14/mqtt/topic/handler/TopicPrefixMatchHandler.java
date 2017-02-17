@@ -19,12 +19,8 @@ public class TopicPrefixMatchHandler<Data> implements TopicMatchHandler<Data> {
     }
 
     @Override
-    public boolean matchAndHandle(String topic, String fullTopic, Data data) {
-        if (topic.startsWith(_prefix)) {
-            _handler.handleTopic(fullTopic, data);
-            return true;
-        }
-        return false;
+    public boolean match(String topic, String fullTopic) {
+        return topic.startsWith(_prefix);
     }
 
     @Override
@@ -43,4 +39,3 @@ public class TopicPrefixMatchHandler<Data> implements TopicMatchHandler<Data> {
     }
 
 }
-

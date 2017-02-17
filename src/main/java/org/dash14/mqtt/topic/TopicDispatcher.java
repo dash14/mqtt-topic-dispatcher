@@ -1,5 +1,7 @@
 package org.dash14.mqtt.topic;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
@@ -90,23 +92,26 @@ public class TopicDispatcher<Data> {
      * @param data A message data passing to handlers
      * @return {@code true} if called least one handler, {@code false} if not called handlers
      */
-    public synchronized boolean dispatch(@Nullable String topic, @Nullable Data data) {
+    public boolean dispatch(@Nullable String topic, @Nullable Data data) {
         if (Strings.isNullOrEmpty(topic)) {
             return false;
         }
 
-        boolean handled = false;
+        List<TopicHandler<Data>> handlers = new ArrayList<>();
 
-        // exactly match
-        for (TopicHandler<Data> handler : _exactMatchHanders.get(topic)) {
-            handler.handleTopic(topic, data);
-            handled = true;
+        synchronized (this) {
+            // exactly match
+            handlers.addAll(_exactMatchHanders.get(topic));
+
+            // wildcard match
+            _hierarchicallyMatcher.matchHierarchically(topic, topic, handlers);
         }
 
-        // wildcard match
-        handled |= _hierarchicallyMatcher.matchAndHandleHierarchically(topic, topic, data);
+        for (TopicHandler<Data> handler : handlers) {
+            handler.handleTopic(topic, data);
+        }
 
-        return handled;
+        return handlers.size() > 0;
     }
 
     private synchronized void updateHierarchicallyMatchers(String topicFilter,
